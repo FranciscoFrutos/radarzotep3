@@ -11,13 +11,13 @@
     "dev": "nodemon index.js"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "puppeteer": "^24.10.2"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsdom": "^26.1.0",
-    "node-fetch": "^3.3.2",
-    "puppeteer": "^24.10.2"
+    "node-fetch": "^3.3.2"
   }
 }

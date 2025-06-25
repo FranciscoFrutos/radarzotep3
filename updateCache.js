@@ -1,46 +1,15 @@
-import Express from 'express'
-import fetch from 'node-fetch';
-import { JSDOM } from 'jsdom';
-import cors from 'cors'
+import puppeteer from 'puppeteer';
 import fs from 'fs';
-const PORT = process.env.PORT || 3000
-const app = Express()
 
-const gameHtmlClass = "ImpressionTrackedElement" 
-const baseUrl = "https://store.steampowered.com/search/?maxprice=5&supportedlang=english&specials=1&ndl=1"
+const baseUrl = "https://store.steampowered.com/search/?maxprice=5&supportedlang=english&specials=1&ndl=1";
 
-
-
-app.use(Express.json())
-
-app.use(cors({
-    origin: "*",
-}))
-
-app.get('/', (req, res)=>{
-    res.send("Server running");
-})
-
-// ...existing imports and setup...
-
-let ofertasCache = {}; // { [pageNum]: { data: [...], lastUpdated: Date } }
-try {
-    ofertasCache = JSON.parse(fs.readFileSync('./ofertasCache.json', 'utf-8'));
-    console.log('Loaded ofertasCache from file.');
-} catch (err) {
-    console.warn('No ofertasCache.json found or failed to load.');
-}
-
-/* async function scrapeSteam(pageNum = 1) {
+async function scrapeSteam(pageNum = 1) {
     const pagedUrl = `${baseUrl}&page=${pageNum}`;
     let browser;
     try {
-       
-        // Remove executablePath and let Puppeteer find Chrome itself
         browser = await puppeteer.launch({
             headless: "new",
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
-           
         });
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
@@ -82,38 +51,22 @@ try {
     } finally {
         if (browser) await browser.close();
     }
-} */
-// Function to update cache for a given page
-/* async function updateCache(pageNum = 1) {
-    const data = await scrapeSteam(pageNum);
-    if (data) {
-        ofertasCache[pageNum] = {
-            data,
-            lastUpdated: new Date()
-        };
-        console.log(`Cache updated for page ${pageNum} at ${new Date().toISOString()}`);
-    }
 }
 
-// Update cache for first 3 pages every hour (adjust as needed)
-function scheduleCacheUpdates() {
-    [1, 2, 3, 4, 5, 6, 7, 8 , 9, 10].forEach(pageNum => {
-        updateCache(pageNum); // Initial fetch
-        setInterval(() => updateCache(pageNum), 60 * 60 * 1000); // Every hour
-    });
-}
-scheduleCacheUpdates();
- */
-app.get('/ofertasp3', (req, res) => {
-    const pageNum = parseInt(req.query.page) || 1;
-    const cache = ofertasCache[pageNum];
-    if (cache && cache.data) {
-        res.json(cache.data);
-    } else {
-        res.status(500).json({ error: 'No data available.' });
+async function main() {
+    let ofertasCache = {};
+    for (let pageNum = 1; pageNum <= 30; pageNum++) {
+        console.log(`Scraping page ${pageNum}...`);
+        const data = await scrapeSteam(pageNum);
+        if (data) {
+            ofertasCache[pageNum] = {
+                data,
+                lastUpdated: new Date()
+            };
+        }
     }
-});
+    fs.writeFileSync('./ofertasCache.json', JSON.stringify(ofertasCache, null, 2));
+    console.log('ofertasCache.json generated!');
+}
 
-app.listen(PORT, ()=> {
-    console.log("Server running on http://localhost:" + PORT );
-})
+main();

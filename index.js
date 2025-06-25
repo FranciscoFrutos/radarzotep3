@@ -1,6 +1,5 @@
 import Express from 'express'
-import fetch from 'node-fetch';
-import { JSDOM } from 'jsdom';
+
 import cors from 'cors'
 import fs from 'fs';
 const PORT = process.env.PORT || 3000
@@ -14,7 +13,7 @@ const baseUrl = "https://store.steampowered.com/search/?maxprice=5&supportedlang
 app.use(Express.json())
 
 app.use(cors({
-    origin: "*",
+    origin: ['http://localhost:5173', "https://radarzotep3-front.vercel.app/"],
 }))
 
 app.get('/', (req, res)=>{

@@ -29,10 +29,12 @@ async function scrapeSteam(pageNum = 1) {
     const pagedUrl = `${baseUrl}&page=${pageNum}`;
     let browser;
     try {
+        const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || (puppeteer.executablePath ? puppeteer.executablePath() : undefined);
         // Remove executablePath and let Puppeteer find Chrome itself
         browser = await puppeteer.launch({
             headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            executablePath
         });
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
